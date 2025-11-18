@@ -1,11 +1,11 @@
 from fastapi import FastAPI, status, HTTPException
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from predict import predict_data
 
 app = FastAPI()
 
-app.mount("/dashboard", StaticFiles(directory="static", html=True), name="dashboard")
+# Remove this line - we don't need static files anymore since we're using Streamlit
+# app.mount("/dashboard", StaticFiles(directory="static", html=True), name="dashboard")
 
 class WineData(BaseModel):
     alcohol: float
