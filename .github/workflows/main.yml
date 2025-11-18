@@ -1,0 +1,79 @@
+name: Wine Classifier CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Check Python syntax
+      run: |
+        python -m py_compile src/main.py
+        python -m py_compile src/data.py
+        python -m py_compile src/predict.py
+        python -m py_compile src/train.py
+        python -m py_compile Dashboard.py
+    
+    - name: Verify model exists
+      run: |
+        if [ ! -f "model/wine_model.pkl" ]; then
+          echo "Model file not found, training model..."
+          cd src && python train.py
+        else
+          echo "Model file exists"
+        fi
+    
+    - name: Test FastAPI server
+      run: |
+        cd src
+        timeout 10s uvicorn main:app --host 0.0.0.0 --port 8000 &
+        sleep 5
+        curl -f http://localhost:8000/ || exit 1
+        echo "FastAPI server test passed!"
+    
+    - name: Check Streamlit Dashboard syntax
+      run: |
+        python -c "import streamlit; print('Streamlit imported successfully')"
+        streamlit --version
+
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install flake8
+      run: |
+        pip install flake8
+    
+    - name: Lint with flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      continue-on-error: true
