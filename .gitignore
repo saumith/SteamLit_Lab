@@ -1,0 +1,22 @@
+cat > .gitignore << 'EOF'
+# Virtual Environment
+streamlitenv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Note: We're NOT excluding *.pkl because we want to push the model!
+EOF
