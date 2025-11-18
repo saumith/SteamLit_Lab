@@ -148,7 +148,7 @@ Backend running at: **http://localhost:8000**
 # From project root directory
 streamlit run Dashboard.py
 ```
-Dashboard opens at: **http://localhost:8502**
+Dashboard opens at: **http://localhost:8501**
 
 ### Verify Setup
 1. Check Terminal 1 shows: `Uvicorn running on http://127.0.0.1:8000`
